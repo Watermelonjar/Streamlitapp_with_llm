@@ -1,6 +1,12 @@
+#Required file name in `Excel_sheets`
+#- 'Aftermarket Target 2024_FINAL.xlsx'
+#- 'Excel_sheets/target2023.xlsx'
+#- 'Excel_sheets/Query Service Sales 2023 to 2024.xlsx'
+#- 'ITUSBS_Service_Report_Cleaned.xlsx'
+
 import pandas as pd
 import numpy as np
-import openai
+
 def clean_data2023(target2023):
     target2023 = target2023.drop(columns=['Unnamed: 16','Unnamed: 15','Unnamed: 17','Unnamed: 18','Unnamed: 19','Unnamed: 20',])
     target2023 = target2023.replace(0, np.nan)
@@ -26,7 +32,7 @@ def clean_data2024(Targetyear):
     Targetyear = Targetyear.dropna()
     Targetyear = Targetyear.astype({'JAN': 'int64', 'FEB': 'int64', 'MAR': 'int64', 'APR': 'int64', 'MAY': 'int64', 'JUN': 'int64', 'JUL': 'int64', 'AUG': 'int64', 'SEP': 'int64', 'OCT': 'int64', 'NOV': 'int64', 'DEC': 'int64', 'TOTAL': 'int64'})
     Targetyear.reset_index(drop=True, inplace=True)
-    Targetyear = Targetyear[Targetyear['BRAND']=='ALL']
+    Targetyear = Targetyear[Targetyear['BRAND']!='ALL']
     Targetyear['CATEGORY'] = Targetyear['CATEGORY'].apply(lambda x: 301 if x in ['GOLD', 'SILVER', 'BLUE', 'SILVER +', 'GOLD +', 'BLUE +'] else 300)
     Targetyear = Targetyear.melt(id_vars=['BRANCH', 'BRAND', 'CATEGORY'],
                       value_vars=['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
@@ -108,4 +114,23 @@ income_df_clean = clean_data_income(income_df.copy())
 income_df_clean.to_csv('Documents/SalesData.csv')
 
 Target2324 = pd.concat([Targetyear_clean, target2023_clean], ignore_index=True)
+Target2324['BRANCH'] = Target2324['BRANCH'].replace('TRANS JAKARTA, KLENDER', 'JAKARTA-TJ')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace('MAKASAR', 'MAKASSAR')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace('FMC BISM MELAK', 'MELAK')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(['MUARAENIM','PT BUKIT ASAM MUARAENIM','FMC PT BUKIT ASAM MUARAENIM',' MUARAENIM ',' FMC PT BUKIT ASAM MUARAENIM '], 'MUARA ENIM')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace([' CILEGON ','CILEGON',' JAKARTA '],'JAKARTA')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' PEKANBARU ','PEKANBARU')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace([' KERINCI ','KERINCI'],'JAMBI')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' PALEMBANG ','PALEMBANG')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' SURABAYA ','SURABAYA')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' SEMARANG ','SEMARANG')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' MEDAN ','MEDAN')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' JAMBI ','JAMBI')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' SOROAKO ','SOROAKO')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' TRANS JAKARTA  ','JAKARTA-TJ')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' SAMARINDA ','SAMARINDA')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' MANADO ','MANADO')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace(' SOROAKO ','SOROAKO')
+Target2324['BRANCH'] = Target2324['BRANCH'].replace('MUARATEWEH','MUARA TEWEH')
+Target2324=Target2324.groupby(['BRANCH','CATEGORY','month'])['value'].sum().reset_index()
 Target2324.to_csv('Documents/TargetData.csv')

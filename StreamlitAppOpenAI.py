@@ -77,7 +77,7 @@ def datagiver(site, daterange, business_unit):
     ]
     Baseinfo = f"""
     Based on this provided data about machine service context:  
-
+    Respond fully in indonesian
     This is based on data for {business_unit} business unit (300 for retail, 301 for contract)
     
     This is the performance metric data for services for {site} branch:
@@ -107,9 +107,9 @@ if prompt := st.chat_input():
         st.info("Please add your OpenAI API key to continue.")
         st.stop()
         
-    baseprompt = datagiver(Sitedata, daterange, BusinessUnit)
+    contextprompt = datagiver(Sitedata, daterange, BusinessUnit)
     client = OpenAI(api_key=openai_api_key)
-    st.session_state.messages.append({"role": "user", "content":baseprompt +  prompt})
+    st.session_state.messages.append({"role": "user", "content":contextprompt +  prompt})
     st.chat_message("user").write(prompt)
     response = client.chat.completions.create(model="gpt-3.5-turbo", messages=st.session_state.messages)
     msg = response.choices[0].message.content

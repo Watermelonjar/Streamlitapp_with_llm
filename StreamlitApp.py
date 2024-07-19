@@ -1,11 +1,10 @@
-from openai import OpenAI
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 import ollama
 
 
-st.title("Chat Service data")
+st.title("Service Sales assistant")
 st.subheader("powered by google/gamma2-9b")
 
 # Load data
@@ -23,9 +22,8 @@ end_date = datetime(2024, 6, 30)
 
 # Group sales data and reset index to keep grouped columns as regular columns
 salesfinal = SalesData.groupby(['INVOICEDATE', 'BusinessUnit', 'siteName'])['lineamount'].sum().reset_index()
+
 SBSData["Job Created"] = pd.to_datetime(SBSData["Job Created"]).dt.to_period('M').dt.to_timestamp()
-
-
 
 # Calculate the mean of the specified columns
 SBSfinal_mean = SBSData.groupby(['Branch Support', 'Job Created','Function Group'])[['ART', 'MTTR', 'FTF', 'FRT']].mean().reset_index()
@@ -81,15 +79,17 @@ def datagiver(site, daterange, business_unit):
     This is based on data for {business_unit} business unit (300 for retail, 301 for contract)
     
     This is the performance metric data for services for {site} branch:
-    ART is actual response time (in minutes, kpi is 1440 min)
-    MTTR is mean time to resolve (in hours, kpi is 120 hours)
-    FRT is first response time, 1 if it is under kpi
-    FTF is first time finish 1 if first time finish, 0 if not
+    ART is in minutes, kpi is 1440 min
+    MTTR is in hours, kpi is 120 hours
+    FRT is first response time 1 if it is under kpi
+    FTF is first time finish 1 if first time finish 0 if not
     use the metrics
     {filteredSBS.to_string(index=False)}
+    
     This is the sales log for {site} branch:
     {filtered_data.to_string(index=False)}
     lineamount is value in rupiah(IDR)
+    
     This is the Target data:
     {filtered_target.to_string(index=False)}
 
@@ -101,17 +101,17 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if prompt := st.chat_input("What is up?"):
+if prompt := st.chat_input("Anything I can help with today?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
         # Get filtered data to use in the assistant's response
-        baseprompt = datagiver(Sitedata, daterange, BusinessUnit)
+        contextprompt = datagiver(Sitedata, daterange, BusinessUnit)
         
         # Generate response using Ollama API
-        messages = [{"role": m["role"], "content": baseprompt + m["content"]} for m in st.session_state.messages]
+        messages = [{"role": m["role"], "content": contextprompt + m["content"]} for m in st.session_state.messages]
         stream = ollama.chat(model='gemma2', messages=messages,stream=False)      
         
         
