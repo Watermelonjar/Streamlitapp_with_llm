@@ -23,9 +23,8 @@ end_date = datetime(2024, 6, 30)
 
 # Group sales data and reset index to keep grouped columns as regular columns
 salesfinal = SalesData.groupby(['INVOICEDATE', 'BusinessUnit', 'siteName'])['lineamount'].sum().reset_index()
+
 SBSData["Job Created"] = pd.to_datetime(SBSData["Job Created"]).dt.to_period('M').dt.to_timestamp()
-
-
 
 # Calculate the mean of the specified columns
 SBSfinal_mean = SBSData.groupby(['Branch Support', 'Job Created','Function Group'])[['ART', 'MTTR', 'FTF', 'FRT']].mean().reset_index()
@@ -85,12 +84,17 @@ def datagiver(site, daterange, business_unit):
     MTTR is mean time to resolve (in hours, kpi is 120 hours)
     FRT is first response time, 1 if it is under kpi
     FTF is first time finish 1 if first time finish, 0 if not
-    use the metrics
+    use the metrics\n
+    
     {filteredSBS.to_string(index=False)}
-    This is the sales log for {site} branch:
+    
+    This is the sales log for {site} branch:\n
+    
     {filtered_data.to_string(index=False)}
-    lineamount is value in rupiah(IDR)
-    This is the Target data:
+    
+    lineamount is value in rupiah(IDR)\n
+    This is the Target data:\n
+    
     {filtered_target.to_string(index=False)}
 
     """

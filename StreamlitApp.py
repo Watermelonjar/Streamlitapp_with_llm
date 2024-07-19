@@ -5,7 +5,7 @@ import ollama
 
 
 st.title("Service Sales assistant")
-st.subheader("powered by google/gamma2-9b")
+st.text("powered by google gamma 2 model")
 
 # Load data
 SalesData = pd.read_csv('Documents/SalesData.csv')
@@ -34,11 +34,6 @@ SBSfinal_count = SBSData.groupby(['Branch Support', 'Job Created','Function Grou
 # Merge the mean and count dataframes
 SBSfinal = pd.merge(SBSfinal_mean, SBSfinal_count, on=['Branch Support', 'Job Created', 'Function Group'])
 
-
-# Initialize session state variables
-if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-3.5-turbo"
-
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -46,7 +41,7 @@ if "messages" not in st.session_state:
 with st.sidebar:
     Sitedata = st.selectbox(label='Select site', options=salesfinal['siteName'].unique())
     daterange = st.slider(
-        label='Select Date Range',
+        label='Select Date Range (di bawah 6 bulan)',
         min_value=start_date,
         max_value=end_date,
         value=(start_date, end_date),
@@ -74,9 +69,8 @@ def datagiver(site, daterange, business_unit):
         (SBSfinal['Branch Support']==site)
     ]
     Baseinfo = f"""
-    Based on this provided data about machine service context:  
-
-    This is based on data for {business_unit} business unit (300 for retail, 301 for contract)
+    context:  
+    Based on this provided data about machine service This is based on data for {business_unit} business unit (300 for retail, 301 for contract)
     
     This is the performance metric data for services for {site} branch:
     ART is in minutes, kpi is 1440 min

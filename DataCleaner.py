@@ -48,7 +48,7 @@ def clean_data_income(big_df):
     big_df['INVOICEDATE'] = pd.to_datetime(big_df['INVOICEDATE'])
     big_df['Revenue amount']=big_df['lineamount']
     big_df['INVOICEDATE']=big_df['INVOICEDATE'].dt.to_period('M')
-
+    big_df['siteName']=big_df['siteName'].replace('HEAD OFFICE','JAKARTA')
     return big_df
 
 def fix_date_time(df,column):
